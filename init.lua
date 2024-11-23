@@ -176,10 +176,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -589,13 +589,13 @@ require('lazy').setup({
       })
 
       -- Change diagnostic symbols in the sign column (gutter)
-      -- if vim.g.have_nerd_font then
-      --   local signs = { Error = '', Warn = '', Hint = '', Info = '' }
-      --   for type, icon in pairs(signs) do
-      --     local hl = 'DiagnosticSign' .. type
-      --     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-      --   end
-      -- end
+      if vim.g.have_nerd_font then
+        local signs = { Error = '', Warn = '', Hint = '', Info = '' }
+        for type, icon in pairs(signs) do
+          local hl = 'DiagnosticSign' .. type
+          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        end
+      end
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -618,6 +618,7 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
+        vimls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -656,6 +657,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'vimls',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -728,21 +730,21 @@ require('lazy').setup({
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
           -- Remove the below condition to re-enable on windows.
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-            return
-          end
+          -- if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+          --   return
+          -- end
           return 'make install_jsregexp'
         end)(),
         dependencies = {
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -788,9 +790,9 @@ require('lazy').setup({
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -844,10 +846,10 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'tokyonight-storm'
 
       -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+      -- vim.cmd.hi 'Comment gui=none'
     end,
   },
 
@@ -877,14 +879,14 @@ require('lazy').setup({
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      statusline.setup { use_icons = true }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function()
-        return '%2l:%-2v'
+        return '%2l:%-2v %p%%'
       end
 
       -- ... and there is more!
@@ -926,12 +928,12 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
